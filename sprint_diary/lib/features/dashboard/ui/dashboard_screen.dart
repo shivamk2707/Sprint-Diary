@@ -7,6 +7,15 @@ import '../../profile/providers/profile_provider.dart';
 import '../../training/providers/training_provider.dart';
 import '../../goals/providers/goal_provider.dart';
 
+import '../../goals/ui/goal_list_screen.dart';
+import '../../goals/ui/goal_form_screen.dart';
+import '../../calendar/ui/calendar_screen.dart';
+import '../../personal_best/ui/personal_best_screen.dart';
+import '../../measurements/ui/measurement_screen.dart';
+import '../../notes/ui/notes_list_screen.dart';
+import '../../reminders/ui/reminder_list_screen.dart';
+import '../../training/ui/training_form_screen.dart';
+
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -87,6 +96,29 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSizes.p24),
 
+              // Quick Actions
+              Text('Quick Actions',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: AppSizes.p8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildActionButton(context, Icons.calendar_month,
+                        'Calendar', const CalendarScreen()),
+                    _buildActionButton(context, Icons.emoji_events, 'Best',
+                        const PersonalBestScreen()),
+                    _buildActionButton(context, Icons.monitor_weight, 'Body',
+                        const MeasurementScreen()),
+                    _buildActionButton(context, Icons.book, 'Journal',
+                        const NotesListScreen()),
+                    _buildActionButton(context, Icons.alarm, 'Reminders',
+                        const ReminderListScreen()),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.p24),
+
               // Today's Workout Summary
               Text('Today\'s Overview',
                   style: Theme.of(context).textTheme.titleMedium),
@@ -107,7 +139,14 @@ class DashboardScreen extends ConsumerWidget {
                                 child:
                                     Text('Rest day or no workout logged yet.')),
                             TextButton(
-                                onPressed: () {}, child: const Text('Log')),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const TrainingFormScreen()));
+                                },
+                                child: const Text('Log')),
                           ],
                         ),
                       ),
@@ -135,19 +174,44 @@ class DashboardScreen extends ConsumerWidget {
               const SizedBox(height: AppSizes.p24),
 
               // Current Goals Overview
-              Text('Active Goals',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: AppSizes.p16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Active Goals',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const GoalListScreen()));
+                      },
+                      child: const Text('View All'))
+                ],
+              ),
+              const SizedBox(height: AppSizes.p8),
               goalsAsync.when(
                 data: (goals) {
                   final activeGoals =
                       goals.where((g) => !g.completed).take(2).toList();
                   if (activeGoals.isEmpty) {
-                    return const Card(
+                    return Card(
                       child: Padding(
-                        padding: EdgeInsets.all(AppSizes.p16),
-                        child: Text('No active goals. Time to set one!'),
-                      ),
+                          padding: const EdgeInsets.all(AppSizes.p16),
+                          child: Row(children: [
+                            const Expanded(
+                                child:
+                                    Text('No active goals. Time to set one!')),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const GoalFormScreen()));
+                                },
+                                child: const Text('Add Goal'))
+                          ])),
                     );
                   }
                   return Column(
@@ -160,6 +224,13 @@ class DashboardScreen extends ConsumerWidget {
                                 title: Text(g.title),
                                 trailing: CircularProgressIndicator(
                                     value: g.progress / 100),
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              GoalFormScreen(goalToEdit: g)));
+                                },
                               ),
                             ))
                         .toList(),
@@ -171,6 +242,27 @@ class DashboardScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+      BuildContext context, IconData icon, String label, Widget screen) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton.filledTonal(
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => screen));
+            },
+            icon: Icon(icon),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
+        ],
       ),
     );
   }

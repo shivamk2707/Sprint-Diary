@@ -7,8 +7,8 @@ final supabaseProvider = Provider<SupabaseClient>((ref) {
 
 class SupabaseService {
   // Use these in production, reading from env
-  static const String supabaseUrl = 'https://bolaxzunboqcsidhhdpo.supabase.co';
-  static const String supabaseAnonKey = 'sb_publishable_f8iwgvvUvWSCzDA5_ZpOug_hv13KLPE';
+  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
+  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 
   static Future<void> initialize() async {
     // Note: In a real app, these should be loaded from an environment variable.
